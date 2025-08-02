@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Weather for Farmers</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #f4f4f4; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px gray; }
+        input, button { padding: 10px; margin: 5px; width: 80%; font-size: 16px; }
+        button { background: green; color: white; border: none; cursor: pointer; }
+        button:hover { background: darkgreen; }
+        #result { margin-top: 20px; font-size: 18px; text-align: left; }
+        h1 { color: #3A5F0B; }
+        .crop-suggestion { background: #DFF2BF; padding: 10px; border-radius: 5px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ð¾ AI Weather Guide for Farmers ð¾</h1>
+        <input type="text" id="city" placeholder="Enter City or Village Name">
+        <button onclick="getWeather()">Get Weather</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function getWeather() {
+            let city = document.getElementById("city").value;
+            if (!city) {
+                alert("Please enter a city name.");
+                return;
+            }
+
+            fetch("http://127.0.0.1:5000/weather", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ city: city })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById("result").innerHTML = `<p style="color:red;">â ï¸ ${data.error}</p>`;
+                    return;
+                }
+
+                let advice = data.rain_chance > 0.5 ? 
+                    "ð§ It may rain today. Avoid harvesting. Check drainage!" :
+                    "âï¸ No rain expected. Good day for farming!";
+                
+                let sunlight = data.sunlight > 0.5 ?
+                    "ð Expect bright sunlight. Irrigate crops early." :
+                    "âï¸ Cloudy weather expected. Cooler day ahead.";
+
+                let cropSuggestion = getCropRecommendation(data.temperature, data.humidity, data.rain_chance);
+                
+                document.getElementById("result").innerHTML = `
+                    <h3>ð Weather in ${city}</h3>
+                    <p>ð¡ Temperature: ${data.temperature}Â°C</p>
+                    <p>ð§ Humidity: ${data.humidity}%</p>
+                    <p>ð¥ Condition: ${data.description}</p>
+                    <hr>
+                    <h3>ð® AI-Based Advice</h3>
+                    <p>${advice}</p>
+                    <p>${sunlight}</p>
+                    <hr>
+                    <div class="crop-suggestion">
+                        <h3>ð± Recommended Crops</h3>
+                        <p>${cropSuggestion}</p>
+                    </div>
+                `;
+            })
+            .catch(err => console.error("Error:", err));
+        }
+
+        function getCropRecommendation(temperature, humidity, rainChance) {
+            if (rainChance > 0.5) {
+                return "ð¾ **Rice, Maize, Soybean** â Best suited for rainy conditions.";
+            } else if (temperature > 30) {
+                return "ð» **Sunflower, Cotton, Bajra** â Heat-tolerant crops.";
+            } else if (humidity > 60) {
+                return "ð¥ **Cucumber, Tomatoes, Chilli** â Suitable for humid climate.";
+            } else {
+                return "ð½ **Wheat, Barley, Lentils** â Ideal for moderate weather.";
+            }
+        }
+    </script>
+</body>
+</html>
