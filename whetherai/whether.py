@@ -5,7 +5,7 @@ from pgmpy.inference import VariableElimination
 
 # Function to fetch real-time weather data
 def get_weather(city):
-    api_key = "4be818742436d1138ad21ddc4b9b5270"  
+    api_key = "API_KEY"  
     base_url = "http://api.openweathermap.org/data/2.5/weather"
     
     params = {
