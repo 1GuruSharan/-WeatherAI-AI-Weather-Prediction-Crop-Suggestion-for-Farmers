@@ -8,7 +8,7 @@ from pgmpy.inference import VariableElimination
 app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend connection
 
-API_KEY = "4be818742436d1138ad21ddc4b9b5270"
+API_KEY = "ADD YOUR API"
 
 # Function to get weather data
 def get_weather(city):
